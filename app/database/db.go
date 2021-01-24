@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/driver/sqlite"
@@ -17,5 +18,14 @@ func CreateInstance(connectionString string) error {
 	if err != nil {
 		return fmt.Errorf("error opening db connection: %w", err)
 	}
+
 	return nil
+}
+
+// Migrate automatically creates the necessary database structure for all models.
+func Migrate() {
+	if Instance == nil {
+		panic(errors.New("Attempted to migrate uninstantiated database - ensure you call database.CreateInstance before making any database calls"))
+	}
+	Instance.AutoMigrate(&User{})
 }
