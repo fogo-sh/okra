@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/markbates/pkger"
+	"github.com/milchinskiy/fiberlog"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -53,6 +54,7 @@ func Setup() (*App, error) {
 	engine.Reload(config.Debug)
 
 	fiberApp := fiber.New(fiber.Config{DisableStartupMessage: true, Views: engine})
+	fiberApp.Use(fiberlog.New())
 
 	CurrentApp = &App{fiberApp, config}
 
