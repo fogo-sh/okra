@@ -12,8 +12,6 @@ import (
 	"github.com/markbates/pkger"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 // CurrentApp represents the current app instance.
@@ -29,12 +27,11 @@ type Config struct {
 // App represents an app instance and all of it's required resources.
 type App struct {
 	Fiber  *fiber.App
-	DB     *gorm.DB
 	Config Config
 }
 
 // Setup sets up the global app instance.
-func Setup() error {
+func Setup() (*App, error) {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Printf("Failed to load .env file: %s\n", err.Error())
@@ -43,7 +40,7 @@ func Setup() error {
 	var config Config
 	err = envconfig.Process("okra", &config)
 	if err != nil {
-		return fmt.Errorf("error loading config: %w", err)
+		return nil, fmt.Errorf("error loading config: %w", err)
 	}
 
 	if config.Debug {
@@ -52,23 +49,14 @@ func Setup() error {
 
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
-	db, err := gorm.Open(sqlite.Open(config.DBPath), &gorm.Config{})
-	if err != nil {
-		return fmt.Errorf("error opening db connection: %w", err)
-	}
-
 	engine := html.NewFileSystem(pkger.Dir("/app/templates"), ".html")
 	engine.Reload(config.Debug)
 
 	fiberApp := fiber.New(fiber.Config{DisableStartupMessage: true, Views: engine})
 
-	CurrentApp = &App{fiberApp, db, config}
+	CurrentApp = &App{fiberApp, config}
 
-	fiberApp.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("index", &fiber.Map{})
-	})
-
-	return nil
+	return CurrentApp, nil
 }
 
 // Start starts the app. Requires calling of Setup first.
