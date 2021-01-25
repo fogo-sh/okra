@@ -28,6 +28,12 @@ func (user *User) CheckPassword(password string) bool {
 	return bytes.Equal(user.HashedPassword, ComputeHash(password, user.PasswordSalt))
 }
 
+// ChangePassword changes a user's password.
+func (user *User) ChangePassword(password string) {
+	user.HashedPassword = ComputeHash(password, user.PasswordSalt)
+	Instance.Save(user)
+}
+
 // NewUser creates a new user.
 func NewUser(username, password string) (*User, error) {
 	salt := make([]byte, 32)
