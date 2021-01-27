@@ -1,17 +1,29 @@
 package main
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/fogo-sh/okra/app"
 	"github.com/fogo-sh/okra/app/database"
 	"github.com/fogo-sh/okra/app/routes"
+	"github.com/rs/zerolog/log"
 )
+
+// CreateTestData initializes the database with testing data.
+func CreateTestData() error {
+	log.Info().Msg("Creating testing data")
+	_, err := database.NewUser("test", "test")
+	if err != nil {
+		return fmt.Errorf("error creating test user: %w", err)
+	}
+	log.Info().Msg("Test data created")
+	return nil
+}
 
 func main() {
 	okraApp, err := app.Setup()
 	if err != nil {
-		log.Fatalf("Error configuring app: %s", err.Error())
+		log.Fatal().Err(err).Msg("Error configuring app")
 		return
 	}
 
@@ -19,8 +31,16 @@ func main() {
 
 	err = database.CreateInstance(okraApp.Config.DBPath)
 	if err != nil {
-		log.Fatalf("Error creating database instance: %s", err.Error())
+		log.Fatal().Err(err).Msg("Error creating database instance")
 		return
+	}
+	database.Migrate()
+
+	if okraApp.Config.Debug {
+		err = CreateTestData()
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to create test data")
+		}
 	}
 
 	app.Start()
