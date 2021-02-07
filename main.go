@@ -12,9 +12,17 @@ import (
 // CreateTestData initializes the database with testing data.
 func CreateTestData() error {
 	log.Info().Msg("Creating testing data")
-	_, err := database.NewUser("test", "test")
+	user, err := database.NewUser("test", "test")
 	if err != nil {
 		return fmt.Errorf("error creating test user: %w", err)
+	}
+	podcast, err := database.NewPodcast(user.ID, "https://feeds.megaphone.fm/darknetdiaries")
+	if err != nil {
+		return fmt.Errorf("error creating test podcast: %w", err)
+	}
+	err = podcast.Refresh()
+	if err != nil {
+		return fmt.Errorf("error refreshing test podcast: %w", err)
 	}
 	log.Info().Msg("Test data created")
 	return nil

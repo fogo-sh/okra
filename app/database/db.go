@@ -27,5 +27,9 @@ func Migrate() {
 	if Instance == nil {
 		panic(errors.New("Attempted to migrate uninstantiated database - ensure you call database.CreateInstance before making any database calls"))
 	}
-	Instance.AutoMigrate(&User{})
+	Instance.AutoMigrate(
+		&User{},
+		&Podcast{},
+		&Episode{},
+	)
 }

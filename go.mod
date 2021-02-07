@@ -9,6 +9,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/markbates/pkger v0.17.1
 	github.com/milchinskiy/fiberlog v0.2.3
+	github.com/mmcdole/gofeed v1.1.0
 	github.com/rs/zerolog v1.20.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	gorm.io/driver/sqlite v1.1.4
